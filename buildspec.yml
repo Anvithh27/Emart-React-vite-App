@@ -6,15 +6,15 @@ phases:
       docker: 19
     commands:
       - echo Installing dependencies...
+      - export REPOSITORY_URI=760829800282.dkr.ecr.ap-south-1.amazonaws.com/emart-repo
+      - export IMAGE_TAG=$(echo $CODEBUILD_RESOLVED_SOURCE_VERSION | cut -c 1-7)
 
   pre_build:
     commands:
       - echo Checking AWS identity...
       - aws sts get-caller-identity
       - echo Logging in to Amazon ECR...
-      - aws ecr get-login-password --region ap-south-1 | docker login --username AWS --password-stdin 760829800282.dkr.ecr.ap-south-1.amazonaws.com
-      - REPOSITORY_URI=760829800282.dkr.ecr.ap-south-1.amazonaws.com/emart-repo
-      - IMAGE_TAG=$(echo $CODEBUILD_RESOLVED_SOURCE_VERSION | cut -c 1-7)
+      - aws ecr get-login-password --region ap-south-1 | docker login --username AWS --password-stdin $REPOSITORY_URI
 
   build:
     commands:
