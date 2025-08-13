@@ -20,12 +20,33 @@ jobs:
           username: ec2-user
           key: ${{ secrets.EC2_KEY }}
           script: |
+            # Go to repo
             cd /home/ec2-user/Emart-React-vite-App
+
+            # Fix dubious ownership
+            git config --global --add safe.directory /home/ec2-user/Emart-React-vite-App
+
+            # Pull latest code
             git reset --hard
             git pull origin main
+
+            # Install Node.js if not installed
+            if ! command -v node &> /dev/null; then
+              echo "Node.js not found, installing..."
+              curl -fsSL https://rpm.nodesource.com/setup_18.x | sudo bash -
+              sudo yum install -y nodejs
+            fi
+
+            # Install dependencies and build
             npm install
             npm run build
+
+            # Copy build to web root
+            sudo mkdir -p /var/www/html
             sudo rm -rf /var/www/html/*
             sudo cp -r dist/* /var/www/html/
+
+            # Restart Apache
+            sudo systemctl enable httpd
             sudo systemctl restart httpd
 
